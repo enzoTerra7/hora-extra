@@ -1,38 +1,31 @@
 import React, { useState, useEffect } from 'react'
-import * as Styles from 'styles/pages/Login/styles'
+import * as Styles from 'styles/pages/Register/styles'
 import { Heading } from 'components/Heading'
 import { InputComponent } from 'components/Input'
 import { ButtonComponent } from 'components/Button'
 import Link from 'next/link'
 import axios from 'axios'
-import Cookies from 'js-cookie';
 
-export interface LoginProps {
+export interface RegisterProps {
   className?: string
 }
 
-const Login = (props: LoginProps) => {
+const Register = (props: RegisterProps) => {
 
+  const [name, setName] = useState('')
   const [pass, setPass] = useState('')
+  const [confirmPass, setConfirmPass] = useState('')
   const [email, setEmail] = useState('')
 
-  const makeLogin = async () => {
+  const makeRegister = async () => {
     try {
-      const { data } = await axios.post(`/api/login`, {
+      await axios.post(`/api/register`, {
+        name,
         password: pass,
         email
       })
-      console.log(data)
-      Cookies.set('token', data.data.token.id, {
-        immutable: true,
-        expires: 7
-      })
-      Cookies.set('user', JSON.stringify(data.data.user), {
-        immutable: true,
-        expires: 7
-      })
-    } catch(e){
-      console.log(e)
+    } catch{
+
     }
   }
 
@@ -55,15 +48,24 @@ const Login = (props: LoginProps) => {
           value={pass}
           onChange={e => setPass(e.target.value)}
         />
+        <InputComponent
+          label="Confimar senha"
+          isPassword
+        />
+        <InputComponent
+          label="Nome completo"
+          placeholder='Insira seu nome completo'
+          value={name}
+          onChange={e => setName(e.target.value)}
+        />
         <ButtonComponent
           model='primary'
-          text="Fazer login"
-          onClick={() => makeLogin()}
+          text="Fazer cadastro"
+          onClick={makeRegister}
         />
         <small>
-          Não tem conta?
-          <Link href="/register">
-            Cria uma agora caraí!
+          <Link href="/">
+            Voltar para login
           </Link>
         </small>
       </Styles.Content>
@@ -71,4 +73,4 @@ const Login = (props: LoginProps) => {
   )
 }
 
-export default Login
+export default Register
