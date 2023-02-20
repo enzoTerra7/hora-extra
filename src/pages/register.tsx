@@ -5,6 +5,10 @@ import { InputComponent } from 'components/Input'
 import { ButtonComponent } from 'components/Button'
 import Link from 'next/link'
 import axios from 'axios'
+import { Loader } from 'components/Loader'
+import { useDialog } from 'src/hooks/useDialog'
+import { BiUserCheck } from 'react-icons/bi'
+import { useRouter } from 'next/router'
 
 export interface RegisterProps {
   className?: string
@@ -12,20 +16,38 @@ export interface RegisterProps {
 
 const Register = (props: RegisterProps) => {
 
+  const { showDialog } = useDialog()
+  const router = useRouter()
+
   const [name, setName] = useState('')
   const [pass, setPass] = useState('')
   const [confirmPass, setConfirmPass] = useState('')
   const [email, setEmail] = useState('')
+  const [sending, setSending] = useState(false)
 
   const makeRegister = async () => {
     try {
+      setSending(true)
       await axios.post(`/api/register`, {
         name,
         password: pass,
         email
       })
+      showDialog({
+        allowOverlayClick: false,
+        img: <BiUserCheck size={50} title="Cadastro feito"/>,
+        title: 'Conta criada com sucesso!',
+        message: 'Volte para a tela inicial e faça seu login.',
+        mainButton: {
+          model: 'primary',
+          text: 'Ir para login.',
+          onClick: () => router.push('/')
+        }
+      })
     } catch{
 
+    } finally {
+      setSending(false)
     }
   }
 
@@ -69,6 +91,7 @@ const Register = (props: RegisterProps) => {
           </Link>
         </small>
       </Styles.Content>
+      <Loader show={sending} />
     </Styles.Container>
   )
 }

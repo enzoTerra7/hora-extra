@@ -6,6 +6,9 @@ import { ButtonComponent } from 'components/Button'
 import Link from 'next/link'
 import axios from 'axios'
 import Cookies from 'js-cookie';
+import { Loader } from 'components/Loader'
+import { useAlert } from 'src/hooks/useAlert'
+import { GetServerSideProps } from 'next'
 
 export interface LoginProps {
   className?: string
@@ -13,11 +16,16 @@ export interface LoginProps {
 
 const Login = (props: LoginProps) => {
 
+  const { showAlert } = useAlert()
+
   const [pass, setPass] = useState('')
   const [email, setEmail] = useState('')
 
+  const [sending, setSending] = useState(false)
+
   const makeLogin = async () => {
     try {
+      setSending(true)
       const { data } = await axios.post(`/api/login`, {
         password: pass,
         email
@@ -25,14 +33,24 @@ const Login = (props: LoginProps) => {
       console.log(data)
       Cookies.set('token', data.data.token.id, {
         immutable: true,
-        expires: 7
+        expires: 8
       })
       Cookies.set('user', JSON.stringify(data.data.user), {
         immutable: true,
         expires: 7
       })
+      Cookies.set('user-id', data.data.user.id, {
+        immutable: true,
+        expires: 7
+      })
+      showAlert({
+        severity: 'success',
+        title: 'Login realizado com sucesso.'
+      })
     } catch(e){
       console.log(e)
+    } finally {
+      setSending(false)
     }
   }
 
@@ -67,8 +85,27 @@ const Login = (props: LoginProps) => {
           </Link>
         </small>
       </Styles.Content>
+      <Loader show={sending} />
     </Styles.Container>
   )
 }
 
 export default Login
+
+export const getServerSideProps: GetServerSideProps = async (props) => {
+  const token = props.req.cookies.token
+  console.log(token)
+
+  if(token) {
+    return {
+      redirect: {
+        destination: '/dashboard',
+        permanent: false
+      }
+    }
+  } else {
+    return {
+      props: {}
+    }
+  }
+}

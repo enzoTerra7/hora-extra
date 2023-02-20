@@ -7,13 +7,12 @@ const api = axios.create({
 })
 
 api.interceptors.request.use(function (config) {
-  const isAuthenticate = auth(Cookies.get('token') as string)
+  const isAuthenticate = auth(Cookies.get('token'))
   if (!isAuthenticate) {
     throw new Error()
   }
   return config
 }, function (error) {
-  Cookies.remove('token')
   window.location.replace('/')
   return Promise.reject(error);
 });
