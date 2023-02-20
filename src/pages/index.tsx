@@ -9,6 +9,7 @@ import Cookies from 'js-cookie';
 import { Loader } from 'components/Loader'
 import { useAlert } from 'src/hooks/useAlert'
 import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
 
 export interface LoginProps {
   className?: string
@@ -17,6 +18,7 @@ export interface LoginProps {
 const Login = (props: LoginProps) => {
 
   const { showAlert } = useAlert()
+  const router = useRouter()
 
   const [pass, setPass] = useState('')
   const [email, setEmail] = useState('')
@@ -39,7 +41,7 @@ const Login = (props: LoginProps) => {
         immutable: true,
         expires: 7
       })
-      Cookies.set('user-id', data.data.user.id, {
+      Cookies.set('userId', data.data.user.id, {
         immutable: true,
         expires: 7
       })
@@ -47,6 +49,7 @@ const Login = (props: LoginProps) => {
         severity: 'success',
         title: 'Login realizado com sucesso.'
       })
+      router.push('/dashboard')
     } catch(e){
       console.log(e)
     } finally {

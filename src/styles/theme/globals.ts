@@ -10,7 +10,7 @@ export default createGlobalStyle`
 
   a {
     position: relative;
-    text-decoration: none;
+    text-decoration: none!important;
     color: ${({ theme }) => theme.colors.primary};
     transition: all 0.25s ease-in-out;
 

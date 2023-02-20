@@ -14,6 +14,7 @@ export const Container = styled.div<Responsive>`
     display: flex;
     flex-direction: column;
     transition: all 0.2s ease-in-out;
+    border-right: 1px solid ${theme.colors.unselected}70;
 
     .hidden {
       display: none;

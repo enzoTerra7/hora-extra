@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import * as Styles from './styles'
 
-import { MdOtherHouses, MdInsertChart, MdGroups, MdEngineering, MdAutoAwesomeMotion, MdMonetizationOn, MdPinDrop, MdAdminPanelSettings, MdKeyboardArrowDown, MdMiscellaneousServices } from 'react-icons/md'
-import { BsFillKeyFill } from 'react-icons/bs'
-import { BiWorld } from 'react-icons/bi'
+import { MdOtherHouses, MdKeyboardArrowDown } from 'react-icons/md'
+import { BiUser } from 'react-icons/bi'
 import { useRouter } from 'next/router'
 import { Heading } from 'components/Heading'
 
@@ -36,81 +35,12 @@ export const Sidebar = (props: SidebarProps) => {
       recognize: 'home'
     },
     {
-      href: '/clients',
-      icon: <MdGroups size={20} title='Ir para o Clientes' />,
-      label: 'Clientes',
+      href: '/my-profile',
+      icon: <BiUser size={20} title='Ir para meu perfil' />,
+      label: 'Meu perfil',
       disabled: usedId === 1,
-      recognize: 'clients'
-    },
-    {
-      href: '/admins',
-      icon: <MdEngineering size={20} title='Ir para o Administradores' />,
-      label: 'Administradores',
-      disabled: usedId === 2,
-      recognize: 'adms'
-    },
-    {
-      href: '',
-      icon: <MdAutoAwesomeMotion size={20} title='Ir para o Serviços' />,
-      label: 'Serviços',
-      disabled: (usedId === 3 || usedId === 3.1 || usedId === 3.2),
-      recognize: 'services',
-      myId: 3,
-      subItems: [
-        {
-          href: '/',
-          icon: <MdMiscellaneousServices size={20} title='Ir para o Serviços' />,
-          label: 'Em andamento',
-          recognize: 'services_progress',
-          disabled: usedId === 3.1
-        },
-        {
-          href: '/avaliable-services',
-          icon: <BiWorld size={20} title='Ir para a tela de Serviços Disponíveis' />,
-          recognize: 'services_avaliable',
-          label: 'Disponíveis',
-          disabled: usedId === 3.2
-        }
-      ]
-    },
-    {
-      href: '/consortium',
-      icon: <MdMonetizationOn size={20} title='Ir para o Consórcio' />,
-      label: 'Consórcio',
-      disabled: usedId === 4,
-      recognize: 'consortium'
-    },
-    {
-      href: '/',
-      icon: <BsFillKeyFill size={20} title='Ir para o Permissões' />,
-      label: 'Permissões',
-      disabled: usedId === 5,
-      recognize: 'permissions'
-    },
-    {
-      href: '',
-      icon: <MdInsertChart size={20} title='Ir para o Permissões' />,
-      label: 'Cadastros',
-      recognize: 'registers',
-      myId: 6,
-      disabled: (usedId === 6 || usedId === 6.1 || usedId === 6.2),
-      subItems: [
-        {
-          href: '/expansionist',
-          icon: <MdAdminPanelSettings size={20} title='Ir para Expansionistas' />,
-          recognize: 'expansionist',
-          label: 'Expansionistas',
-          disabled: usedId === 6.1
-        },
-        {
-          href: '/jbsPlants',
-          icon: <MdPinDrop size={20} title='Ir para Plantas JBS' />,
-          recognize: 'plants',
-          label: 'Plantas JBS',
-          disabled: usedId === 6.2
-        }
-      ]
-    },
+      recognize: 'myProfile'
+    }
   ])
   const [expansive, setExpansive] = useState(false)
 

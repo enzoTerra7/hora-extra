@@ -1,3 +1,4 @@
+import React from 'react'
 import { InputAdornment } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import { useState } from 'react';
@@ -5,6 +6,7 @@ import InputMask from 'react-input-mask';
 import * as Styles from './styles'
 import { FiAlertCircle } from 'react-icons/fi'
 
+import { NumericFormat, InputAttributes } from 'react-number-format';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
 
 export interface InputProps {
@@ -27,6 +29,7 @@ export interface InputProps {
   multiline?: boolean
   rows?: number
   name?: string
+  inputShrink?: boolean
 }
 
 export const InputComponent = (props: InputProps) => {
@@ -40,6 +43,7 @@ export const InputComponent = (props: InputProps) => {
       <Styles.Container className={props.className} >
         <TextField
           {...props}
+          InputLabelProps={{ shrink: props.inputShrink }}
           name={props.name}
           variant="outlined"
           className='input'
@@ -88,6 +92,7 @@ export const InputComponent = (props: InputProps) => {
     return (
       <Styles.Container className={props.className} >
         <TextField
+          InputLabelProps={{ shrink: props.inputShrink }}
           {...props}
           name={props.name}
           variant="outlined"
@@ -129,4 +134,134 @@ export const InputComponent = (props: InputProps) => {
       </Styles.Container>
     )
   }
+}
+
+
+interface CustomProps {
+  onChange: (event: { target: { name: string; value: string } }) => void;
+  name: string;
+}
+
+const NumberFormatCustom = React.forwardRef<
+  typeof NumericFormat<InputAttributes>,
+  CustomProps
+>(function NumberFormatCustom(props, ref) {
+  const { onChange, ...other } = props;
+
+  return (
+    <NumericFormat
+      {...other}
+      getInputRef={ref}
+      onValueChange={(values: any) => {
+        onChange({
+          target: {
+            name: props.name,
+            value: values.value,
+          },
+        });
+      }}
+      thousandSeparator="."
+      decimalSeparator=","
+      valueIsNumericString
+      decimalScale={2}
+      maxLength={16}
+    />
+  );
+});
+
+export const CurrencyInput = (props: InputProps) => {
+
+  const id = props.notShowError ? 'outlined' : props.isError ? props.errorLabel ? "outlined-error-helper-text" : "outlined-error" : 'outlined'
+
+  return (
+    <Styles.Container>
+      <TextField
+        {...props}
+        name={props.name}
+        aria-details={props.name}
+        variant="outlined"
+        className='input'
+        type={props.type || 'text'}
+        error={props.notShowError ? false : props.isError || false}
+        id={`${id}`}
+        multiline={props.multiline}
+        rows={props.rows}
+        label={props.label}
+        value={props.value}
+        onKeyUp={props.onKeyUp}
+        helperText={(props.isError && !props.disabled) && (
+          <span className={props.notShowError ? 'invisible' : 'show'}>
+            <FiAlertCircle />
+            {props.errorLabel}
+          </span>
+        ) || ''}
+        onChange={props.onChange}
+        disabled={props.disabled}
+        placeholder={props.placeholder}
+        InputProps={{
+          inputComponent: NumberFormatCustom as any,
+          startAdornment: props.leftIcon && (
+            <InputAdornment position="start">
+              {props.leftIcon}
+            </InputAdornment>
+          ),
+          endAdornment: (props.rightIcon) && (
+            <InputAdornment position="end">
+              {props.rightIcon}
+            </InputAdornment>
+          ),
+          inputProps: {
+            prefix: 'R$'
+          }
+        }}
+      />
+    </Styles.Container>
+  )
+}
+
+export const NumberInput = (props: InputProps) => {
+
+  const id = props.notShowError ? 'outlined' : props.isError ? props.errorLabel ? "outlined-error-helper-text" : "outlined-error" : 'outlined'
+
+  return (
+    <Styles.Container>
+      <TextField
+        {...props}
+        name={props.name}
+        aria-details={props.name}
+        variant="outlined"
+        className='input'
+        type={props.type || 'text'}
+        error={props.notShowError ? false : props.isError || false}
+        id={`${id}`}
+        multiline={props.multiline}
+        rows={props.rows}
+        label={props.label}
+        value={props.value}
+        onKeyUp={props.onKeyUp}
+        helperText={(props.isError && !props.disabled) && (
+          <span className={props.notShowError ? 'invisible' : 'show'}>
+            <FiAlertCircle />
+            {props.errorLabel}
+          </span>
+        ) || ''}
+        onChange={props.onChange}
+        disabled={props.disabled}
+        placeholder={props.placeholder}
+        InputProps={{
+          inputComponent: NumberFormatCustom as any,
+          startAdornment: props.leftIcon && (
+            <InputAdornment position="start">
+              {props.leftIcon}
+            </InputAdornment>
+          ),
+          endAdornment: (props.rightIcon) && (
+            <InputAdornment position="end">
+              {props.rightIcon}
+            </InputAdornment>
+          )
+        }}
+      />
+    </Styles.Container>
+  )
 }

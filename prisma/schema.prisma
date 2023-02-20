@@ -12,18 +12,21 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  name     String
-  password String
-  token   Token[]
+  id              Int     @id @default(autoincrement())
+  email           String  @unique
+  name            String
+  password        String
+  avatar          String  @default("null")
+  salary          Float   @default(0)
+  hours_per_month Int     @default(0)
+  token           Token[]
 }
 
 model Token {
-  id         Int       @id @default(autoincrement())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  valid      Boolean   @default(true)
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  valid      Boolean  @default(true)
   expiration DateTime
 
   // Relation fields

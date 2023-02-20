@@ -23,9 +23,9 @@ export const Navbar = (props: NavbarProps) => {
     <Styles.Container className={props.className} >
       <MdNotifications className="icon" />
       <Styles.UserInformations>
-        <Avatar variant="square" className="userImage" src={userInfo.avatar ? userInfo.avatar : undefined} alt="Imagem do usuário"/>
+        <Avatar variant="square" className="userImage" src={userInfo?.avatar ? userInfo.avatar : undefined} alt="Imagem do usuário"/>
         <div className="message">
-          Olá, <strong>{userInfo.name ? userInfo.name : 'Usuário'}</strong>
+          Olá, <strong>{userInfo?.name ? userInfo.name : 'Usuário'}</strong>
         </div>
         <div className="dropdown">
           <HiOutlineChevronDown size={24} title="Ver mais informações do usuário" />
