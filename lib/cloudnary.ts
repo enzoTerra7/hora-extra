@@ -7,6 +7,9 @@ v2.config({
 })
 
 export async function uploadImage(file: any): Promise<string> {
-  const result = await v2.uploader.upload(file?.path, { folder: 'my_folder' })
+  const usingFile =  await JSON.parse(file as string)
+  console.log('parsed', usingFile)
+  const result = await v2.uploader.upload(usingFile?.path, { folder: 'my_folder' })
+  console.log('resultado uri', result)
   return result.secure_url
 }

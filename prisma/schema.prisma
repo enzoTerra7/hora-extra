@@ -12,14 +12,15 @@ datasource db {
 }
 
 model User {
-  id              Int     @id @default(autoincrement())
-  email           String  @unique
+  id              Int          @id @default(autoincrement())
+  email           String       @unique
   name            String
   password        String
-  avatar          String  @default("null")
-  salary          Float   @default(0)
-  hours_per_month Int     @default(0)
+  avatar          String       @default("null")
+  salary          Float        @default(0)
+  hours_per_month Int          @default(0)
   token           Token[]
+  extraHours      ExtraHours[]
 }
 
 model Token {
@@ -32,4 +33,41 @@ model Token {
   // Relation fields
   user   User @relation(fields: [userId], references: [id])
   userId Int
+}
+
+model ExtraHours {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  month    String   @unique
+  total     Int      @default(0)
+
+  // Relation fields
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  ExtraWorks ExtraWorks[]
+}
+
+model ExtraWorks {
+  id           Int        @id @default(autoincrement())
+  extraHours   ExtraHours @relation(fields: [extraHoursId], references: [id])
+  date         DateTime   @unique
+  extraHoursId Int
+  description  String
+  total        Int        @default(0)
+
+  //Relation fields
+  works Works[]
+}
+
+model Works {
+  id      Int   @id @default(autoincrement())
+  entrace Float
+  exit    Float
+  total   Int   @default(0)
+
+  //Relation fields
+  ExtraWorks   ExtraWorks @relation(fields: [extraWorksId], references: [id])
+  extraWorksId Int
 }

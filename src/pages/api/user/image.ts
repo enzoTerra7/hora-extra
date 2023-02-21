@@ -13,9 +13,9 @@ export default async function handler(
   if (req.method == 'PATCH') {
     let uri: any = null
     
-    console.log('body file', req.body.file)
-    if (req.body.file) {
-      const uri = await uploadImage(req.body.file)
+    console.log('query file', req.query.file)
+    if (req.query.file) {
+      const uri = await uploadImage(req.query.file)
       console.log('uri func', uri)
     }
     const data = await changeImage(Number(req.query.id), uri)
@@ -24,6 +24,6 @@ export default async function handler(
       return res.status(404).json({ message: data })
     }
 
-    return res.status(200).json({ data: data })
+    return res.status(200).json({ user: data, req: req.body })
   }
 }

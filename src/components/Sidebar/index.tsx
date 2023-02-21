@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import * as Styles from './styles'
 
-import { MdOtherHouses, MdKeyboardArrowDown } from 'react-icons/md'
+import { MdOtherHouses, MdKeyboardArrowDown, MdMonetizationOn } from 'react-icons/md'
 import { BiUser } from 'react-icons/bi'
 import { useRouter } from 'next/router'
 import { Heading } from 'components/Heading'
@@ -31,15 +31,22 @@ export const Sidebar = (props: SidebarProps) => {
       href: '/dashboard',
       icon: <MdOtherHouses size={20} title='Ir para o ínico' />,
       label: 'Início',
-      disabled: usedId === 0,
+      disabled: navigate.pathname.includes('/dashboard'),
       recognize: 'home'
     },
     {
       href: '/my-profile',
       icon: <BiUser size={20} title='Ir para meu perfil' />,
       label: 'Meu perfil',
-      disabled: usedId === 1,
+      disabled: navigate.pathname.includes('/my-profile'),
       recognize: 'myProfile'
+    },
+    {
+      href: '/extra-hours',
+      icon: <MdMonetizationOn size={20} title='Ir para horas extras' />,
+      label: 'Extras',
+      disabled: navigate.pathname.includes('/extra-hours'),
+      recognize: 'horasExtras'
     }
   ])
   const [expansive, setExpansive] = useState(false)

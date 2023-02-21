@@ -16,6 +16,7 @@ import { HiFolderAdd } from 'react-icons/hi'
 import { MyDropzoneFiles } from 'components/Dropzone'
 import { useAlert } from 'src/hooks/useAlert'
 import { Loader } from 'components/Loader'
+import { uploadImage } from 'lib/cloudnary'
 
 export interface MyProfileProps {
   className?: string
@@ -63,21 +64,24 @@ const MyProfile = (props: MyProfileProps) => {
   const attUser = async () => {
     try {
       setSending(true)
-      console.log(imageFile)
       if(imageFile) {
-        console.log('send image')
-        await axios.patch(`/api/user/image?id=${Cookies.get('userId')}`, {
-          file: imageFile
-        }, {
+        const FD = new FormData()
+        FD.append('file', imageFile)
+        await axios.patch(`/api/user/image?id=${Cookies.get('userId')}&file=${JSON.stringify(imageFile)}`,
+        {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
-        })
+        }
+        )
       } else if (removeImage) {
         await axios.put(`/api/user/image?id=${Cookies.get('userId')}`, {
           file: null
         })
       }
+      await axios.put(`/api/user/user?id=${Cookies.get('userId')}`, {
+        ...user
+      })
       setDisabled(true)
       showAlert({
         severity: 'success',
@@ -165,26 +169,28 @@ const MyProfile = (props: MyProfileProps) => {
                 label="Nome"
                 value={user.name}
                 placeholder="Inserir o seu nome"
-
+                onChange={(e) => setUser({ ...user, name: e.target.value})}
               />
               <InputComponent
                 disabled={disabled}
                 label="Email"
                 placeholder="Inserir o seu email"
                 value={user.email}
-
+                onChange={(e) => setUser({ ...user, email: e.target.value})}
               />
               <NumberInput
                 disabled={disabled}
                 label="Horas por mês"
                 value={user.hours_per_month}
                 placeholder="Inserir o seu nome"
+                onChange={(e) => setUser({ ...user, hours_per_month: e.target.value})}
               />
               <CurrencyInput
                 disabled={disabled}
                 label="Salário"
                 placeholder="Inserir o seu salário"
                 value={user.salary}
+                onChange={(e) => setUser({ ...user, salary: e.target.value})}
               />
             </Styles.GridInformation>
           </Styles.Content>

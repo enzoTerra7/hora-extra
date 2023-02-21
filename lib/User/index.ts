@@ -23,6 +23,7 @@ export const getUser = async (id: number) => {
 
 export const attUser = async (id: number, data: any) => {
   try {
+    console.log('salario', data.hours_per_month)
     const user = await prisma.user.findUnique({
       where: {
         id
@@ -42,8 +43,8 @@ export const attUser = async (id: number, data: any) => {
       data: {
         name: data.name || user.name,
         email: data.email || user.email,
-        hours_per_month: data?.hours_per_month || user?.hours_per_month || 0,
-        salary: data?.salary || user?.salary || 0
+        hours_per_month: parseInt(data?.hours_per_month) || user?.hours_per_month || 0,
+        salary: parseFloat(data?.salary) || user?.salary || 0
       }
     })
   } catch (e) {

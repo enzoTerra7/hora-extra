@@ -57,7 +57,7 @@ export const Divisor = styled.hr`
 export const GridInformation = styled.div`
   ${({ theme }) => css`
     display: grid;
-    grid-template-columns:  repeat(auto-fit, minMax(200px, 1fr));
+    grid-template-columns:  repeat(auto-fit, minMax(243px, 1fr));
     gap: 1rem;
     width: 100%;
   `}
