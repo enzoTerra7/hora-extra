@@ -36,3 +36,33 @@ export const ExtraContainer = styled.div`
     }
   `}
 `
+
+export const Details = styled.div`
+  ${({theme}) => css`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    .total {
+      display: flex;
+      align-items: center;
+
+      strong {
+        font-weight: 700;
+        color: ${theme.colors.primaryHover};
+        margin: 0 0.25rem;
+      }
+      
+
+      @media screen and (max-width: 768px) {
+        text-align: center;
+      }
+    }
+
+    button {
+      max-width: 300px;
+    }
+  `}
+`

@@ -5,13 +5,17 @@ import { FaPlus } from 'react-icons/fa'
 import { Layout } from 'components/layouts/layout/main'
 import Cookies from 'js-cookie'
 import axios from 'axios'
-import { Accordion } from '@mui/material'
+import { Accordion } from 'components/Accordion'
 import { Heading } from 'components/Heading'
 import { Dialog } from 'components/Dialog'
 import { InputComponent } from 'components/Input'
 import { FcMoneyTransfer } from 'react-icons/fc'
 import { Loader } from 'components/Loader'
 import { useAlert } from 'src/hooks/useAlert'
+import { AccordionComponentProp } from 'components/Accordion'
+import { AiFillEye } from 'react-icons/ai'
+import { ButtonComponent } from 'components/Button'
+import { useRouter } from 'next/router'
 
 export interface ExtraHoursListProps {
   className?: string
@@ -26,8 +30,9 @@ export interface ExtrasType {
 const ExtraHoursList = (props: ExtraHoursListProps) => {
 
   const { showAlert } = useAlert()
+  const router = useRouter()
 
-  const [extras, setExtras] = useState<ExtrasType[]>([])
+  const [extras, setExtras] = useState<AccordionComponentProp[]>([])
   const [openDialog, setOpenDialog] = useState(false)
   const [month, setMonth] = useState('')
   const [year, setYear] = useState('')
@@ -36,7 +41,24 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
   const handleExtras = useCallback(async () => {
     try {
       const { data } = await axios.get(`/api/extras/month?id=${Cookies.get('userId')}`)
-      setExtras(data.month.extraHours)
+      setExtras([
+        ...data.month.extraHours.map((extra: any) => ({
+          expanded: extra.id,
+          title: '',
+          step: extra.month,
+          details: <Styles.Details>
+            <span className="total">
+              Você teve um total de <strong> {extra.total} </strong> horas extras este mês.
+            </span>
+            <ButtonComponent
+              model="primary"
+              text="Ver detalhes"
+              leftIcon={<AiFillEye size={20} title="Ver detalhes" />}
+              onClick={() => router.push(`/extra-hours/view/${extra.id}`)}
+            />
+          </Styles.Details>
+        }))
+      ])
     } catch (e) {
 
     }
@@ -44,6 +66,7 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
 
   const createExtra = async (month: string, year: string) => {
     try {
+      setSending(true)
       console.log(month, year)
       await axios.post(`/api/extras/month?month=${month}-${year}&id=${Cookies.get('userId')}`)
       handleExtras()
@@ -51,7 +74,6 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
         severity: 'success',
         title: 'Extra criado com sucesso'
       })
-      setSending(true)
     } catch(e) {
 
     } finally {
@@ -83,7 +105,7 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
               href: '/extra-hours'
             }
           ],
-          icon: <MdMonetizationOn size={50} title="MyProfile" />,
+          icon: <MdMonetizationOn size={50} title="Extras" />,
           mainButton: {
             text: 'Adicionar',
             model: 'primary',
@@ -94,7 +116,9 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
       >
         <Styles.Content>
           {!!extras.length ? (
-            'Tem'
+            <Accordion 
+              steps={extras}
+            />
           ) : (
             <Heading size="xl" >
               <h3>

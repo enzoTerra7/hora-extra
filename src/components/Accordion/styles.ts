@@ -12,8 +12,12 @@ export const Container = styled.div`
       margin: 0;
       background-color: ${theme.colors.primary};
 
-      p, svg {
+      p {
         color: #171717;
+      }
+
+      svg {
+        color: ${theme.colors.white};
       }
       
       transition: all 0.2s ease-in-out;
@@ -29,7 +33,7 @@ export const Container = styled.div`
       &.Mui-expanded {
         p {
           color: ${theme.colors.white};
-        }
+        } 
       }
     }
 

@@ -10,7 +10,7 @@ import { Skeleton } from '@mui/material';
 export type AccordionComponentProp = {
   expanded: string,
   title: string,
-  details: string,
+  details: React.ReactNode,
   step: string
 }
 
