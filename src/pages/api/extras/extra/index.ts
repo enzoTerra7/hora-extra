@@ -1,4 +1,4 @@
-import { getExtraWorks, createExtraWork } from './../../../../../lib/Extras/month';
+import { getExtraWorks, createExtraWork, deleteExtraWork } from './../../../../../lib/Extras/month';
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 type Data = {
@@ -15,6 +15,10 @@ export default async function handler(
   }
   else if (req.method == 'POST') {
     const data = await createExtraWork(req.query.date as string, req.query.description as string, req.query.id as string) 
+    return res.status(200).json({ work: data })
+  }
+  else if (req.method == 'DELETE') {
+    const data = await deleteExtraWork(req.query.id as string) 
     return res.status(200).json({ work: data })
   }
 }

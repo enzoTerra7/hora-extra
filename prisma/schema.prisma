@@ -52,7 +52,7 @@ model ExtraHours {
 model ExtraWorks {
   id           Int        @id @default(autoincrement())
   extraHours   ExtraHours @relation(fields: [extraHoursId], references: [id])
-  date         DateTime   @unique
+  date         String   @unique
   extraHoursId Int
   description  String
   total        Int        @default(0)
@@ -63,8 +63,8 @@ model ExtraWorks {
 
 model Works {
   id      Int   @id @default(autoincrement())
-  entrace Float
-  exit    Float
+  entrace String
+  exit    String
   total   Int   @default(0)
 
   //Relation fields

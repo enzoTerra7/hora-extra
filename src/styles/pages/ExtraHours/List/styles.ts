@@ -61,6 +61,12 @@ export const Details = styled.div`
       }
     }
 
+    .buttonsRow {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
     button {
       max-width: 300px;
     }

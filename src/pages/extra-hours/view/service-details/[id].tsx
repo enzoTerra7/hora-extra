@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { MdDelete, MdDeleteForever, MdMonetizationOn } from 'react-icons/md'
+import { MdDeleteForever, MdMonetizationOn } from 'react-icons/md'
 import * as Styles from 'styles/pages/ExtraHours/List/styles'
-import { FaPlus, FaTrash } from 'react-icons/fa'
+import { FaPen, FaPlus } from 'react-icons/fa'
 import { Layout } from 'components/layouts/layout/main'
 import { Loader } from 'components/Loader'
 import { useAlert } from 'src/hooks/useAlert'
 import { GetStaticPaths, GetStaticProps } from 'next'
-import { getAllUserExtra, getExtraById } from 'lib/Extras/month'
 import { Accordion, AccordionComponentProp } from 'components/Accordion'
 import { ButtonComponent } from 'components/Button'
 import { AiFillEye } from 'react-icons/ai'
@@ -17,23 +16,17 @@ import { InputComponent } from 'components/Input'
 import { GrUserWorker } from 'react-icons/gr'
 import axios from 'axios'
 import Cookies from 'js-cookie'
+import { getAllWorks, getWorkById } from 'lib/Works/work'
+import { ColumnProps, Table } from 'components/Table'
 import { IconButton } from 'components/IconButton'
-import { useDialog } from 'src/hooks/useDialog'
 
-export interface ExtraHoursListProps {
+export interface WorksListProps {
   className?: string
   id?: string | number
-  extra: ExtrasType
+  works: ExtrasType
 }
 
 export interface ExtrasType {
-  id: number
-  month: string
-  total: number
-  ExtraWorks: ExtraWorks[]
-}
-
-export interface ExtraWorks {
   id: number | string
   date: string
   extraHoursId: number
@@ -49,60 +42,22 @@ export interface Works {
   total: string | number
 }
 
-const ExtraHoursList = (props: ExtraHoursListProps) => {
+const ExtraHoursList = (props: WorksListProps) => {
 
   const { showAlert } = useAlert()
-  const { showDialog } = useDialog()
   const router = useRouter()
-
-  const mappingWorks = (data: any[]) => {
-    return [...data.map((extra) => ({
-      expanded: String(extra.id),
-      title: '',
-      step: extra.description,
-      details: <Styles.Details>
-        <span className="total">
-          Você teve um total de <strong> {extra.total} </strong> horas nesse serviço.
-        </span>
-        <div className="buttonsRow">
-          <ButtonComponent
-            model="primary"
-            text="Ver detalhes"
-            leftIcon={<AiFillEye size={20} title="Ver detalhes" />}
-            onClick={() => router.push(`/extra-hours/view/service-details/${extra.id}`)}
-          />
-          <IconButton
-            model="primary"
-            icon={<MdDeleteForever size={20} title="Remover" />}
-            onClick={() => showDialog({
-              error: true,
-              img: <MdDeleteForever size={50} title="Remover" />,
-              title: `Deseja mesmo apagar o serviço ${extra.description}?`,
-              message: 'Se confirmar, todos os dados dele serão perdidos.',
-              mainButton: {
-                model: 'error',
-                text: 'Apagar',
-                leftIcon: <FaTrash size={20} title="Remover" />,
-                onClick: () => deleteWork(extra.id)
-              }
-            })}
-          />
-        </div>
-      </Styles.Details>
-    }))]
-  }
 
   const [sending, setSending] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
-  const [date, setDate] = useState('')
-  const [description, setDescription] = useState('')
-  const [extraWorks, setExtraWorks] = useState<AccordionComponentProp[]>(mappingWorks(props.extra.ExtraWorks))
+  const [start, setStart] = useState('')
+  const [exit, setExit] = useState('')
+  const [extraWorks, setExtraWorks] = useState<Works[]>(props.works.works || [])
 
   const handleWorks = async () => {
     try {
-      const { data } = await axios.get(`/api/extras/extra?id=${props.id}`)
+      const { data } = await axios.get(`/api/extras/extra/works?id=${props.id}`)
       console.log(data)
-      setExtraWorks(mappingWorks(data.work.ExtraWorks))
+      setExtraWorks(data.work)
       showAlert({
         severity: 'success',
         title: 'Extra criado com sucesso'
@@ -114,28 +69,10 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
     }
   }
 
-  const deleteWork = async (id: string | number) => {
+  const createWork = async (start: string, ending: string) => {
     try {
       setSending(true)
-      console.log(date, description)
-      await axios.delete(`/api/extras/extra?id=${id}`)
-      handleWorks()
-      showAlert({
-        severity: 'success',
-        title: 'Extra removido com sucesso.'
-      })
-    } catch (e) {
-
-    } finally {
-      setSending(false)
-    }
-  }
-
-  const createWork = async (date: string, description: string) => {
-    try {
-      setSending(true)
-      console.log(date, description)
-      await axios.post(`/api/extras/extra?date=${date}&description=${description}&id=${props.id}`)
+      await axios.post(`/api/extras/extra/works?start=${start}&ending=${ending}&id=${props.id}`)
       handleWorks()
       showAlert({
         severity: 'success',
@@ -150,9 +87,43 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
 
   const handleCloseModal = () => {
     setOpenDialog(false)
-    setDate('')
-    setDescription('')
+    setStart('')
+    setExit('')
   }
+
+  const Columns: ColumnProps[] = [
+    {
+      key: '0',
+      title: 'Entrada',
+      render: (data) => data.entrace.substring(11, 16)
+    },
+    {
+      key: '1',
+      title: 'Saída',
+      render: (data) => data.exit.substring(11, 16)
+    },
+    {
+      key: '2',
+      title: 'Total',
+      render: (data) => data.total
+    },
+    {
+      key: '3',
+      title: 'Ações',
+      width: '130px',
+      render: (data) => 
+        <div className="actionsContainer">
+          <IconButton
+            model="primary"
+            icon={<FaPen size={20} title="Editar"/>}
+          />
+          <IconButton
+            model="primary"
+            icon={<MdDeleteForever size={20} title="Remover"/>}
+          />
+        </div>
+    },
+  ]
 
   return (
     <Styles.Container className={props.className} >
@@ -164,7 +135,11 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
               href: '/extra-hours'
             },
             {
-              text: props.extra.month,
+              text: '', //window?.localStorage?.getItem('month')
+              href: '-1'
+            },
+            {
+              text: props.works.description,
               href: ''
             }
           ],
@@ -177,19 +152,22 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
           }
         }}
       >
-        <Styles.Content>
-          {!!extraWorks.length ? (
-            <Accordion
-              steps={extraWorks}
-            />
-          ) : (
+        {!!extraWorks.length ? (
+          <Table
+            data={extraWorks}
+            withoutPagination
+            title='Veja suas entradas e saídas'
+            columns={Columns}
+          />
+        ) : (
+          <Styles.Content>
             <Heading size="xl" >
               <h3>
                 Sem nada por aqui parça, bora trabalhar pô
               </h3>
             </Heading>
-          )}
-        </Styles.Content>
+          </Styles.Content>
+        )}
       </Layout>
       <Loader show={sending} />
       {openDialog && (
@@ -199,20 +177,20 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
           title="Informe sobre qual mês é esse extra"
           jsx={<Styles.ExtraContainer>
             <InputComponent
-              label='Data'
-              type="date"
-              value={date}
-              onChange={e => setDate(e.target.value)}
-              placeholder="Insira a data desse serviço"
+              label='Entrada'
+              type="datetime-local"
+              value={start}
+              onChange={e => setStart(e.target.value)}
+              placeholder="Insira a data de inicio desse serviço"
               inputShrink
             />
             <InputComponent
-              label='Descrição'
-              multiline
-              rows={5}
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Insira a descrição do serviço realizado"
+              label='Saída (pode ser adicionado depois)'
+              type="datetime-local"
+              value={exit}
+              onChange={e => setExit(e.target.value)}
+              placeholder="Insira a data de finalização do serviço"
+              inputShrink
             />
           </Styles.ExtraContainer>}
           mainButton={{
@@ -220,10 +198,10 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
             text: 'Adicionar serviço',
             leftIcon: <GrUserWorker size={20} title="Adicionar serviço" />,
             onClick: () => {
-              createWork(date, description)
+              createWork(start, exit)
               handleCloseModal()
             },
-            disabled: date == '' || description == ''
+            disabled: start == ''
           }}
           secondaryButton={{
             model: 'other',
@@ -239,9 +217,9 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
 export default ExtraHoursList
 
 export const getStaticPaths: GetStaticPaths = async (props) => {
-  const allIds = await getAllUserExtra()
+  const allIds = await getAllWorks()
   const paths = [];
-  await allIds.forEach((id) => { paths.push(`/extra-hours/view/${id.id}`) })
+  await allIds.forEach((id) => { paths.push(`/extra-hours/view/service-details/${id.id}`) })
   return { paths, fallback: "blocking" };
 }
 
@@ -249,13 +227,13 @@ export const getStaticProps: GetStaticProps = async (props) => {
   const { id } = props.params;
 
   try {
-    const data = await getExtraById(id as string);
+    const data = await getWorkById(id as string);
     console.log('retorno do props', data)
     return data ? {
       props: {
         className: '',
         id: id,
-        extra: data
+        works: data
       }
     } : { notFound: true };
   } catch (error) {

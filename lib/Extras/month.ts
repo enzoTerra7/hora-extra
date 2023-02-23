@@ -79,6 +79,7 @@ export const getExtraWorks = async (id: string) => {
         ExtraWorks: true
       }
     })
+    console.log('retorno do get', extras)
     return extras
   } catch (e) {
     console.log('erro get works', e)
@@ -88,12 +89,28 @@ export const getExtraWorks = async (id: string) => {
 
 export const createExtraWork = async (date: string, description: string, id: string) => {
   try {
+    console.log('valores criar', date, description, id)
     const currentDate = new Date(date)
     await prisma.extraWorks.create({
       data: {
-        date: currentDate,
+        date: String(currentDate),
         description: description,
         extraHoursId: parseInt(id)
+      }
+    })
+    return true
+  } catch (e) {
+    console.log('erro create work', e)
+    return false
+  }
+}
+
+export const deleteExtraWork = async (id: string) => {
+  try {
+    console.log('valores apagar', id)
+    await prisma.extraWorks.delete({
+      where: {
+        id: parseInt(id)
       }
     })
     return true
