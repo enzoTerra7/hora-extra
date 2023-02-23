@@ -33,24 +33,24 @@ export const Container = styled.div`
     &:not(.Mui-error){
       &:has(.Mui-focused), &:has(.MuiInputBase-root:hover), &:has(label:hover){
         fieldset {
-          border-color: ${theme.primary};
+          border-color: ${theme.colors.primary};
         }
         label, legend, span{
-          color: ${theme.primary};
+          color: ${theme.colors.primary};
         }
       }
     }
 
     &:has(.Mui-error) {
       label, legend, span, .MuiFormHelperText-root{
-        color: ${theme.error};
+        color: ${theme.colors.error};
       }
       &:has(.Mui-focused), &:has(.MuiInputBase-root:hover){
         fieldset {
-          border-color: ${theme.error};
+          border-color: ${theme.colors.error};
         }
         label, legend, span{
-          color: ${theme.error};
+          color: ${theme.colors.error};
         }
       }
     }
@@ -60,10 +60,10 @@ export const Container = styled.div`
         cursor: not-allowed!important;
       }
       fieldset {
-        border-color: ${theme.locked}!important;
+        border-color: ${theme.colors.locked}!important;
       }
       label, legend, span{
-        color: ${theme.locked}!important;
+        color: ${theme.colors.locked}!important;
       }
     }
 

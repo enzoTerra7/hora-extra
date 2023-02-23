@@ -21,9 +21,11 @@ export default async function handler(
     const data = await changeImage(Number(req.query.id), uri)
     console.log('retorno', data)
     if (data == 'Usuário não encontrado') {
+      //@ts-ignore
       return res.status(404).json({ message: data })
     }
 
+//@ts-ignore
     return res.status(200).json({ user: data, req: req.body })
   }
 }

@@ -69,7 +69,12 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
             model="primary"
             text="Ver detalhes"
             leftIcon={<AiFillEye size={20} title="Ver detalhes" />}
-            onClick={() => router.push(`/extra-hours/view/service-details/${extra.id}`)}
+            onClick={() => {
+              Cookies.set('month', extra.description, {
+                expires: 1
+              }) 
+              router.push(`/extra-hours/view/service-details/${extra.id}`)}
+            }
           />
           <IconButton
             model="primary"
@@ -94,7 +99,6 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
 
   const [sending, setSending] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
-  const [date, setDate] = useState('')
   const [description, setDescription] = useState('')
   const [extraWorks, setExtraWorks] = useState<AccordionComponentProp[]>(mappingWorks(props.extra.ExtraWorks))
 
@@ -117,7 +121,6 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
   const deleteWork = async (id: string | number) => {
     try {
       setSending(true)
-      console.log(date, description)
       await axios.delete(`/api/extras/extra?id=${id}`)
       handleWorks()
       showAlert({
@@ -131,11 +134,10 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
     }
   }
 
-  const createWork = async (date: string, description: string) => {
+  const createWork = async (description: string) => {
     try {
       setSending(true)
-      console.log(date, description)
-      await axios.post(`/api/extras/extra?date=${date}&description=${description}&id=${props.id}`)
+      await axios.post(`/api/extras/extra?description=${description}&id=${props.id}`)
       handleWorks()
       showAlert({
         severity: 'success',
@@ -150,7 +152,7 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
 
   const handleCloseModal = () => {
     setOpenDialog(false)
-    setDate('')
+
     setDescription('')
   }
 
@@ -174,6 +176,11 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
             model: 'primary',
             onClick: () => setOpenDialog(true),
             leftIcon: <FaPlus size={20} title="Adicionar serviço" />
+          },
+          secondaryButton: {
+            text: 'Voltar',
+            model: 'secondary',
+            onClick: () => router.push(`/extra-hours`)
           }
         }}
       >
@@ -199,14 +206,6 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
           title="Informe sobre qual mês é esse extra"
           jsx={<Styles.ExtraContainer>
             <InputComponent
-              label='Data'
-              type="date"
-              value={date}
-              onChange={e => setDate(e.target.value)}
-              placeholder="Insira a data desse serviço"
-              inputShrink
-            />
-            <InputComponent
               label='Descrição'
               multiline
               rows={5}
@@ -220,10 +219,10 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
             text: 'Adicionar serviço',
             leftIcon: <GrUserWorker size={20} title="Adicionar serviço" />,
             onClick: () => {
-              createWork(date, description)
+              createWork(description)
               handleCloseModal()
             },
-            disabled: date == '' || description == ''
+            disabled: description == ''
           }}
           secondaryButton={{
             model: 'other',

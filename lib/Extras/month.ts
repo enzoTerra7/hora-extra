@@ -33,6 +33,20 @@ export const getExtraMonth = async (id: string) => {
   }
 }
 
+export const deleteExtraMonth = async (id: string) => {
+  try {
+    await prisma.user.delete({
+      where: {
+        id: parseInt(id)
+      }
+    })
+    return true
+  } catch (e) {
+    console.log('erro auth', e)
+    return e
+  }
+}
+
 export const getAllUserExtra = async () => {
   try {
     const extras = await prisma.extraHours.findMany({
@@ -87,13 +101,11 @@ export const getExtraWorks = async (id: string) => {
   }
 }
 
-export const createExtraWork = async (date: string, description: string, id: string) => {
+export const createExtraWork = async (description: string, id: string) => {
   try {
-    console.log('valores criar', date, description, id)
-    const currentDate = new Date(date)
+    console.log('valores criar', description, id)
     await prisma.extraWorks.create({
       data: {
-        date: String(currentDate),
         description: description,
         extraHoursId: parseInt(id)
       }

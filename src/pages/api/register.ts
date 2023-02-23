@@ -12,6 +12,7 @@ export default async function handler(
 ) {
   if (req.method === 'POST') {
     const data = await registerAccount(req.body.email, req.body.password, req.body.name)
+    //@ts-ignore
     return res.status(200).json({ message: 'Conta criada com sucesso', data: data })
   }
 }

@@ -39,8 +39,8 @@ model ExtraHours {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  month    String   @unique
-  total     Int      @default(0)
+  month     String   @unique
+  total     Float    @default(0)
 
   // Relation fields
   user   User @relation(fields: [userId], references: [id])
@@ -52,20 +52,19 @@ model ExtraHours {
 model ExtraWorks {
   id           Int        @id @default(autoincrement())
   extraHours   ExtraHours @relation(fields: [extraHoursId], references: [id])
-  date         String   @unique
   extraHoursId Int
-  description  String
-  total        Int        @default(0)
+  description  String     @unique
+  total        Float      @default(0)
 
   //Relation fields
   works Works[]
 }
 
 model Works {
-  id      Int   @id @default(autoincrement())
+  id      Int    @id @default(autoincrement())
   entrace String
   exit    String
-  total   Int   @default(0)
+  total   Float  @default(0)
 
   //Relation fields
   ExtraWorks   ExtraWorks @relation(fields: [extraWorksId], references: [id])

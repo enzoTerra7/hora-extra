@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { MdDeleteForever, MdMonetizationOn } from 'react-icons/md'
 import * as Styles from 'styles/pages/ExtraHours/List/styles'
-import { FaPen, FaPlus } from 'react-icons/fa'
+import { FaMoneyBill, FaPen, FaPlus, FaTrash } from 'react-icons/fa'
 import { Layout } from 'components/layouts/layout/main'
 import { Loader } from 'components/Loader'
 import { useAlert } from 'src/hooks/useAlert'
@@ -19,6 +19,7 @@ import Cookies from 'js-cookie'
 import { getAllWorks, getWorkById } from 'lib/Works/work'
 import { ColumnProps, Table } from 'components/Table'
 import { IconButton } from 'components/IconButton'
+import { useDialog } from 'src/hooks/useDialog'
 
 export interface WorksListProps {
   className?: string
@@ -45,10 +46,14 @@ export interface Works {
 const ExtraHoursList = (props: WorksListProps) => {
 
   const { showAlert } = useAlert()
+  const { showDialog } = useDialog()
   const router = useRouter()
+  console.log(props)
 
   const [sending, setSending] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
+  const [openDialogEdit, setOpenDialogEdit] = useState(false)
+  const [idToEdit, setIdToEdit] = useState(-1)
   const [start, setStart] = useState('')
   const [exit, setExit] = useState('')
   const [extraWorks, setExtraWorks] = useState<Works[]>(props.works.works || [])
@@ -85,22 +90,56 @@ const ExtraHoursList = (props: WorksListProps) => {
     }
   }
 
+  const editWork = async (start: string, ending: string, id: string | number) => {
+    try {
+      setSending(true)
+      await axios.put(`/api/extras/extra/works?start=${start}&ending=${ending}&id=${id}`)
+      handleWorks()
+      showAlert({
+        severity: 'success',
+        title: 'Extra criado com sucesso'
+      })
+    } catch (e) {
+
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const deleteWork = async (id: string | number) => {
+    try {
+      setSending(true)
+      await axios.delete(`/api/extras/extra/works?id=${id}`)
+      handleWorks()
+      showAlert({
+        severity: 'success',
+        title: 'Extra deletado com sucesso'
+      })
+    } catch (e) {
+
+    } finally {
+      setSending(false)
+    }
+  }
+
   const handleCloseModal = () => {
     setOpenDialog(false)
+    setOpenDialogEdit(false)
     setStart('')
     setExit('')
+    setIdToEdit(-1)
   }
 
   const Columns: ColumnProps[] = [
     {
       key: '0',
       title: 'Entrada',
-      render: (data) => data.entrace.substring(11, 16)
+      render: (data) => new Date(data.entrace).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }).split(', ').join(' as ')
     },
     {
       key: '1',
       title: 'Saída',
-      render: (data) => data.exit.substring(11, 16)
+      render: (data) => new Date(data.exit).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }).split(', ').join(' as ')
     },
     {
       key: '2',
@@ -116,10 +155,28 @@ const ExtraHoursList = (props: WorksListProps) => {
           <IconButton
             model="primary"
             icon={<FaPen size={20} title="Editar"/>}
+            onClick={() => {
+              setStart(data.entrace)
+              setExit(data.exit)
+              setIdToEdit(data.id)
+              setOpenDialogEdit(true)
+            }}
           />
           <IconButton
             model="primary"
             icon={<MdDeleteForever size={20} title="Remover"/>}
+            onClick={() => showDialog({
+              error: true,
+              img: <MdDeleteForever size={50} title="Remover" />,
+              title: `Deseja mesmo apagar essas horas?`,
+              message: 'Se confirmar, todos os dados dele serão perdidos.',
+              mainButton: {
+                model: 'error',
+                text: 'Apagar',
+                leftIcon: <FaTrash size={20} title="Remover" />,
+                onClick: () => deleteWork(data.id)
+              }
+            })}
           />
         </div>
     },
@@ -135,8 +192,8 @@ const ExtraHoursList = (props: WorksListProps) => {
               href: '/extra-hours'
             },
             {
-              text: '', //window?.localStorage?.getItem('month')
-              href: '-1'
+              text: Cookies.get('month') || '', //window?.localStorage?.getItem('month')
+              href: `/extra-hours/view/${Cookies.get('month-id')}`
             },
             {
               text: props.works.description,
@@ -149,6 +206,11 @@ const ExtraHoursList = (props: WorksListProps) => {
             model: 'primary',
             onClick: () => setOpenDialog(true),
             leftIcon: <FaPlus size={20} title="Adicionar serviço" />
+          },
+          secondaryButton: {
+            text: 'Voltar',
+            model: 'secondary',
+            onClick: () => router.push(`/extra-hours/view/${Cookies.get('month-id')}`)
           }
         }}
       >
@@ -174,7 +236,7 @@ const ExtraHoursList = (props: WorksListProps) => {
         <Dialog
           onClose={() => setOpenDialog(false)}
           allowOverlayClick={false}
-          title="Informe sobre qual mês é esse extra"
+          title="Informe sua entrada e saída nesse extra"
           jsx={<Styles.ExtraContainer>
             <InputComponent
               label='Entrada'
@@ -196,9 +258,49 @@ const ExtraHoursList = (props: WorksListProps) => {
           mainButton={{
             model: 'primary',
             text: 'Adicionar serviço',
-            leftIcon: <GrUserWorker size={20} title="Adicionar serviço" />,
+            leftIcon: <FaMoneyBill size={20} title="Adicionar serviço" />,
             onClick: () => {
               createWork(start, exit)
+              handleCloseModal()
+            },
+            disabled: start == ''
+          }}
+          secondaryButton={{
+            model: 'other',
+            text: 'Cancelar',
+            onClick: handleCloseModal
+          }}
+        />
+      )}
+      {openDialogEdit && (
+        <Dialog
+          onClose={() => setOpenDialogEdit(false)}
+          allowOverlayClick={false}
+          title="Edita sua entrada e saída nesse extra"
+          jsx={<Styles.ExtraContainer>
+            <InputComponent
+              label='Entrada'
+              type="datetime-local"
+              value={start}
+              onChange={e => setStart(e.target.value)}
+              placeholder="Insira a data de inicio desse serviço"
+              inputShrink
+            />
+            <InputComponent
+              label='Saída (pode ser adicionado depois)'
+              type="datetime-local"
+              value={exit}
+              onChange={e => setExit(e.target.value)}
+              placeholder="Insira a data de finalização do serviço"
+              inputShrink
+            />
+          </Styles.ExtraContainer>}
+          mainButton={{
+            model: 'primary',
+            text: 'Editar serviço',
+            leftIcon: <FaPen size={20} title="Editar serviço" />,
+            onClick: () => {
+              editWork(start, exit, idToEdit)
               handleCloseModal()
             },
             disabled: start == ''

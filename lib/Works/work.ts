@@ -27,11 +27,10 @@ export const getWorkById = async (id: string) => {
       },
       select: {
         id: true,
-        date: true,
         extraHoursId: true,
         description: true,
         total: true,
-        works: true
+        works: true,
       }
     })
     console.log('works', works)
@@ -46,27 +45,69 @@ export const getWorkById = async (id: string) => {
   }
 }
 
-export const createWorkById = async (start: string, exit: string, id: string) => {
+export const createWorkById = async (start: string, id: string, exit?: string) => {
   try {
-    const entraceDate = new Date(start).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })
-    const exitDate = new Date(exit).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })
-    const entrace = new Date(entraceDate)
-    const lefting = new Date(exitDate)
-    console.log('total', (lefting.getTime() - entrace.getTime() / (60 * 60 * 1000)))
+    const entraceDate = new Date(start)
+    const exitDate = new Date(exit || start)
+    const total = ((exitDate.getTime() - entraceDate.getTime()) / (60 * 60 * 1000))
     const works = await prisma.works.create({
       data: {
-        entrace: entrace,
-        exit: lefting,
-        total: (lefting.getTime() - entrace.getTime()) / (60 * 60 * 1000),
-        extraWorksId: parseInt(id)
+        entrace: String(entraceDate),
+        exit: String(exitDate),
+        total: total,
+        extraWorksId: parseInt(id),
       }
     })
     console.log('works', works)
     if (works == null) {
       return []
     } else {
+
       return works
     }
+  } catch (e) {
+    console.log(e);
+    return []
+  }
+}
+
+export const updateWorkById = async (start: string, id: string, exit?: string) => {
+  try {
+    console.log('id', id);
+    const entraceDate = new Date(start)
+    const exitDate = new Date(exit || start)
+    const total = ((exitDate.getTime() - entraceDate.getTime()) / (60 * 60 * 1000))
+    const works = await prisma.works.update({
+      where: {
+        id: parseInt(id)
+      },
+      data: {
+        entrace: String(entraceDate),
+        exit: String(exitDate),
+        total: total
+      }
+    })
+    console.log('works', works)
+    if (works == null) {
+      return []
+    } else {
+
+      return works
+    }
+  } catch (e) {
+    console.log(e);
+    return []
+  }
+}
+
+export const deleteWorkById = async (id: string) => {
+  try {
+    await prisma.works.delete({
+      where: {
+        id: parseInt(id)
+      }
+    })
+    return true
   } catch (e) {
     console.log(e);
     return []
@@ -89,5 +130,39 @@ export const getWorks = async (id: string) => {
   } catch (e) {
     console.log(e);
     return []
+  }
+}
+
+export async function updateExtraWorksTotal() {
+  const extraWorks = await prisma.extraWorks.findMany({
+    include: {
+      works: true,
+    },
+  });
+
+  for (const extraWork of extraWorks) {
+    const total = extraWork.works.reduce((acc, work) => acc + work.total, 0);
+
+    await prisma.extraWorks.update({
+      where: { id: extraWork.id },
+      data: { total },
+    });
+  }
+}
+
+export async function updateExtraHoursTotal() {
+  const extraHours = await prisma.extraHours.findMany({
+    include: {
+      ExtraWorks: true,
+    },
+  });
+
+  for (const extraWork of extraHours) {
+    const total = extraWork.ExtraWorks.reduce((acc, work) => acc + work.total, 0);
+
+    await prisma.extraHours.update({
+      where: { id: extraWork.id },
+      data: { total },
+    });
   }
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { MdMonetizationOn } from 'react-icons/md'
+import { MdDeleteForever, MdMonetizationOn } from 'react-icons/md'
 import * as Styles from 'styles/pages/ExtraHours/List/styles'
-import { FaPlus } from 'react-icons/fa'
+import { FaPlus, FaTrash } from 'react-icons/fa'
 import { Layout } from 'components/layouts/layout/main'
 import Cookies from 'js-cookie'
 import axios from 'axios'
@@ -16,6 +16,8 @@ import { AccordionComponentProp } from 'components/Accordion'
 import { AiFillEye } from 'react-icons/ai'
 import { ButtonComponent } from 'components/Button'
 import { useRouter } from 'next/router'
+import { IconButton } from 'components/IconButton'
+import { useDialog } from 'src/hooks/useDialog'
 
 export interface ExtraHoursListProps {
   className?: string
@@ -30,6 +32,7 @@ export interface ExtrasType {
 const ExtraHoursList = (props: ExtraHoursListProps) => {
 
   const { showAlert } = useAlert()
+  const { showDialog } = useDialog()
   const router = useRouter()
 
   const [extras, setExtras] = useState<AccordionComponentProp[]>([])
@@ -50,12 +53,35 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
             <span className="total">
               Você teve um total de <strong> {extra.total} </strong> horas extras este mês.
             </span>
-            <ButtonComponent
-              model="primary"
-              text="Ver detalhes"
-              leftIcon={<AiFillEye size={20} title="Ver detalhes" />}
-              onClick={() => router.push(`/extra-hours/view/${extra.id}`)}
-            />
+            <div className="buttonsRow">
+              <ButtonComponent
+                model="primary"
+                text="Ver detalhes"
+                leftIcon={<AiFillEye size={20} title="Ver detalhes" />}
+                onClick={() => {
+                  Cookies.set('month-id', extra.id, {
+                    expires: 1
+                  })
+                  router.push(`/extra-hours/view/${extra.id}`)
+                }}
+              />
+              <IconButton
+                model="primary"
+                icon={<MdDeleteForever size={20} title="Remover" />}
+                onClick={() => showDialog({
+                  error: true,
+                  img: <MdDeleteForever size={50} title="Remover" />,
+                  title: `Deseja mesmo apagar essas horas?`,
+                  message: 'Se confirmar, todos os dados dele serão perdidos.',
+                  mainButton: {
+                    model: 'error',
+                    text: 'Apagar',
+                    leftIcon: <FaTrash size={20} title="Remover" />,
+                    onClick: () => deleteExtra(extra.id)
+                  }
+                })}
+              />
+            </div>
           </Styles.Details>
         }))
       ])
@@ -74,7 +100,23 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
         severity: 'success',
         title: 'Extra criado com sucesso'
       })
-    } catch(e) {
+    } catch (e) {
+
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const deleteExtra = async (id: string | number) => {
+    try {
+      setSending(true)
+      await axios.delete(`/api/extras/month?id=${id}`)
+      handleExtras()
+      showAlert({
+        severity: 'success',
+        title: 'Extra deletado com sucesso'
+      })
+    } catch (e) {
 
     } finally {
       setSending(false)
@@ -116,7 +158,7 @@ const ExtraHoursList = (props: ExtraHoursListProps) => {
       >
         <Styles.Content>
           {!!extras.length ? (
-            <Accordion 
+            <Accordion
               steps={extras}
             />
           ) : (

@@ -20,7 +20,7 @@ export const Container = styled.div<ContainerProps>`
     background-color: #00000045;
 
     * {
-      color: ${theme.primary}
+      color: ${theme.colors.primary}
     }
   `}
 `

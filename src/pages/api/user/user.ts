@@ -14,16 +14,20 @@ export default async function handler(
     const data = await getUser(Number(req.query.id))
     console.log('retorno', data)
     if (data == 'Usuário não encontrado') {
+      //@ts-ignore
       return res.status(404).json({ message: data })
     }
 
+    //@ts-ignore
     return res.status(200).json({ message: 'Usuário carregado com sucesso', data: data })
   } else if (req.method == 'PUT') {
     const data = await attUser(Number(req.query.id), req.body)
     if (data == 'Usuário não encontrado') {
+      //@ts-ignore
       return res.status(404).json({ message: data })
     }
 
+    //@ts-ignore
     return res.status(200).json({ message: 'Usuário atualizado com sucesso', data: data })
   }
 }
